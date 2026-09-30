@@ -20,6 +20,7 @@
   "homepage": "https://github.com/pjprobst/integrations#readme",
   "dependencies": {
     "@octokit/core": "^7.0.8",
+    "cors": "^2.8.6",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "octokit": "^5.0.5"

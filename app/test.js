@@ -1,9 +1,14 @@
 import { Octokit } from "octokit";
 import dotenv from 'dotenv';
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8080;
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 dotenv.config({path: '.env'});
 
@@ -257,8 +262,8 @@ let githubActivity = [];
 
 githubActivity = await pollingLoop(10000);
 
-app.get('/', (req, res) => {
-    res.send(JSON.stringify(githubActivity));
+app.get('/data', (req, res) => {
+    res.json(githubActivity);
 });
 
 app.listen(port, () => {
