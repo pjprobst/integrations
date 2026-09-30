@@ -226,15 +226,36 @@ async function pollGithub(){
     return activity;
 }
 
-async function pollingLoop() {
-    githubActivity = await pollGithub();
-    setTimeout(pollingLoop, 10000);
+let checkExpBackoff = 0;
+
+async function pollingLoop(refresh) {
+    try {
+        githubActivity = await pollGithub();
+        setTimeout(() => pollingLoop(refresh), refresh);
+        checkExpBackoff = 0;
+    }
+    catch(err) {
+        checkExpBackoff += 1;
+        console.log(`ERROR: ${err}`);
+
+        if (checkExpBackoff >= 5 && checkExpBackoff <= 10) {
+            setTimeout(() => pollingLoop(refresh), (1000 * Math.pow(2, checkExpBackoff-4)));
+        }
+        else if (checkExpBackoff > 10) {
+            console.log(`Exponential backoff has exceeded 10, capping exponential backoff at 64s`);
+            setTimeout(() => pollingLoop(refresh), 64000);
+        }
+        else {
+            setTimeout(() => pollingLoop(refresh), 1000);
+        }
+    }
     return githubActivity;
 }
 
 let githubActivity = [];
 
-githubActivity = await pollingLoop();
+
+githubActivity = await pollingLoop(10000);
 
 app.get('/', (req, res) => {
     res.send(JSON.stringify(githubActivity));
