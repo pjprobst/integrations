@@ -1,21 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
-  const [data, setData] = useState('');
-
+  const [data, setData] = useState([]);
   useEffect(() => {
-    fetch('http://localhost:8080/data')
-    .then((res) => res.json())
-    .then((data) => setData(JSON.stringify(data)))
+    const dataSource = new EventSource('http://localhost:8080/data');
+    dataSource.addEventListener('message', (event) => {
+      setData(JSON.parse(event.data));
+    });
+
+    return () => {
+      dataSource.close();
+    }
   }, []);
 
   return (
     <div className="App">
       <header className="App-header">
         <p>
-          {data}
+          {JSON.stringify(data)}
         </p>
       </header>
     </div>

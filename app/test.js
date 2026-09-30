@@ -224,6 +224,10 @@ async function pollGithub(){
         delete entry.datetime;
     }
 
+    for (const client of clients) {
+        client.write(`data: ${JSON.stringify(activity)}\n\n`);
+    };
+
     // debug
     const end = new Date();
     console.log(`fetched in ${end-start}ms`);
@@ -259,11 +263,22 @@ async function pollingLoop(refresh) {
 
 let githubActivity = [];
 
+const clients = new Set();
 
 githubActivity = await pollingLoop(10000);
 
 app.get('/data', (req, res) => {
-    res.json(githubActivity);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    clients.add(res);
+    res.write(`data: ${JSON.stringify(githubActivity)}\n\n`);
+
+    req.on('close', () => {
+        clients.delete(res);
+    });
 });
 
 app.listen(port, () => {
