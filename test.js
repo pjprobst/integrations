@@ -40,6 +40,10 @@ async function pollGithub(){
         }
     }
 
+    const toTitleCase = (str) => {
+        return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+    }
+
     const aWeekAgo = new Date(Date.now()-604800000);
 
     const checkRecent = (entry) => {
@@ -76,82 +80,101 @@ async function pollGithub(){
             switch (type) {
                 case 'CommitCommentEvent':
                     typeData = {
-                        type: type,
+                        type: `Commented on a commit`,
                     };
                     break;
                 case 'CreateEvent':
-                    typeData = {
-                        type: type,
-                    };
+                    if (event.payload.ref_type === 'branch') {
+                        typeData = {
+                            type: `Created a new branch`,
+                        };
+                    }
+                    else if (event.payload.ref_type === 'repository') {
+                        typeData = {
+                            type: `Created a new repo`,
+                        };
+                    }
+                    else {
+                        typeData = {
+                            type: `Created a new tag`,
+                        };
+                    }
                     break;
                 case 'DeleteEvent':
-                    typeData = {
-                        type: type,
-                    };
+                    if (event.payload.ref_type === 'branch') {
+                        typeData = {
+                            type: `Deleted a branch`,
+                        };
+                    }
+                    else {
+                        typeData = {
+                            type: `Deleted a tag`,
+                        };
+                    }
                     break;
                 case 'DiscussionEvent':
                     typeData = {
-                        type: type,
+                        type: `Created a discussion`,
                     };
                     break;
                 case 'ForkEvent':
                     typeData = {
-                        type: type,
+                        type: `Forked a repository`,
                     };
                     break;
                 case 'GollumEvent':
                     typeData = {
-                        type: type,
+                        type: `${toTitleCase(event.payload.pages[0].action)} a wiki page`,
                     };
                     break;
                 case 'IssueCommentEvent':
                     typeData = {
-                        type: type,
+                        type: `Commented on an issue / pull request`,
                     };
                     break;
                 case 'IssuesEvent':
                     typeData = {
-                        type: type,
+                        type: `${toTitleCase(event.payload.action)} an issue`,
                     };
                     break;
                 case 'MemberEvent':
                     typeData = {
-                        type: type,
+                        type: `Added user to a repository`,
                     };
                     break;
                 case 'PublicEvent':
                     typeData = {
-                        type: type,
+                        type: 'Made a repository public',
                     };
                     break;
                 case 'PullRequestEvent':
                     typeData = {
-                        type: type,
+                        type: `${toTitleCase(event.payload.action)} a pull request`,
                     };
                     break;
                 case 'PullRequestReviewEvent':
                     typeData = {
-                        type: type,
+                        type: `${toTitleCase(event.payload.action)} a pull request review`,
                     };
                     break;
                 case 'PullRequestReviewCommentEvent':
                     typeData = {
-                        type: type,
+                        type: `Commented on a pull request`,
                     };
                     break;
                 case 'PushEvent':
                     typeData = {
-                        type: type,
+                        type: `Pushed commits`,
                     };
                     break;
                 case 'ReleaseEvent':
                     typeData = {
-                        type: type,
+                        type: `Published a release`,
                     };
                     break;
                 case 'WatchEvent':
                     typeData = {
-                        type: type,
+                        type: `Starred a repository`,
                     };
                     break;
                 default:
