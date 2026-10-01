@@ -14,7 +14,8 @@ dotenv.config({path: '.env'});
 const apiKey = process.env.YOUTUBE_API_KEY;
 
 const youtube = google.youtube({
-    version: 'v3', auth: apiKey
+    version: 'v3', 
+    auth: apiKey
 });
 
 async function pollYoutube() {
@@ -96,12 +97,12 @@ async function pollYoutube() {
     const end = new Date();
     console.log(`fetched in ${end-start}ms`);
 
-    return youtubeActivity, videos;
+    return [youtubeActivity, videos];
 }
 
 async function pollingLoop(refresh) {
     try {
-        youtubeActivity, videos = await pollYoutube();
+        [youtubeActivity, videos] = await pollYoutube();
         setTimeout(() => pollingLoop(refresh), refresh);
         checkExpBackoff = 0;
     }
@@ -120,7 +121,7 @@ async function pollingLoop(refresh) {
             setTimeout(() => pollingLoop(refresh), refresh/10);
         }
     }
-    return youtubeActivity, videos;
+    return [youtubeActivity, videos];
 }
 
 const pollingCadence = 10000;
@@ -132,7 +133,7 @@ let youtubeActivity = [];
 
 const clients = new Set();
 
-youtubeActivity, videos = await pollingLoop(pollingCadence);
+[youtubeActivity, videos] = await pollingLoop(pollingCadence);
 
 app.get('/data', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
