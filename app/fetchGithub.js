@@ -85,106 +85,126 @@ async function pollGithub(){
             switch (type) {
                 case 'CommitCommentEvent':
                     typeData = {
-                        type: `Commented on a commit`,
+                        type: 'github',
+                        event: `Commented on a commit`,
                     };
                     break;
                 case 'CreateEvent':
                     if (event.payload.ref_type === 'branch') {
                         typeData = {
-                            type: `Created a new branch`,
+                            type: 'github',
+                            event: `Created a new branch`,
                         };
                     }
                     else if (event.payload.ref_type === 'repository') {
                         typeData = {
-                            type: `Created a new repo`,
+                            type: 'github',
+                            event: `Created a new repo`,
                         };
                     }
                     else {
                         typeData = {
-                            type: `Created a new tag`,
+                            type: 'github',
+                            event: `Created a new tag`,
                         };
                     }
                     break;
                 case 'DeleteEvent':
                     if (event.payload.ref_type === 'branch') {
                         typeData = {
-                            type: `Deleted a branch`,
+                            type: 'github',
+                            event: `Deleted a branch`,
                         };
                     }
                     else {
                         typeData = {
-                            type: `Deleted a tag`,
+                            type: 'github',
+                            event: `Deleted a tag`,
                         };
                     }
                     break;
                 case 'DiscussionEvent':
                     typeData = {
-                        type: `Created a discussion`,
+                        type: 'github',
+                        event: `Created a discussion`,
                     };
                     break;
                 case 'ForkEvent':
                     typeData = {
-                        type: `Forked a repository`,
+                        type: 'github',
+                        event: `Forked a repository`,
                     };
                     break;
                 case 'GollumEvent':
                     typeData = {
-                        type: `${toTitleCase(event.payload.pages[0].action)} a wiki page`,
+                        type: 'github',
+                        event: `${toTitleCase(event.payload.pages[0].action)} a wiki page`,
                     };
                     break;
                 case 'IssueCommentEvent':
                     typeData = {
-                        type: `Commented on an issue / pull request`,
+                        type: 'github',
+                        event: `Commented on an issue / pull request`,
                     };
                     break;
                 case 'IssuesEvent':
                     typeData = {
-                        type: `${toTitleCase(event.payload.action)} an issue`,
+                        type: 'github',
+                        event: `${toTitleCase(event.payload.action)} an issue`,
                     };
                     break;
                 case 'MemberEvent':
                     typeData = {
-                        type: `Added user to a repository`,
+                        type: 'github',
+                        event: `Added user to a repository`,
                     };
                     break;
                 case 'PublicEvent':
                     typeData = {
-                        type: 'Made a repository public',
+                        type: 'github',
+                        event: 'Made a repository public',
                     };
                     break;
                 case 'PullRequestEvent':
                     typeData = {
-                        type: `${toTitleCase(event.payload.action)} a pull request`,
+                        type: 'github',
+                        event: `${toTitleCase(event.payload.action)} a pull request`,
                     };
                     break;
                 case 'PullRequestReviewEvent':
                     typeData = {
-                        type: `${toTitleCase(event.payload.action)} a pull request review`,
+                        type: 'github',
+                        event: `${toTitleCase(event.payload.action)} a pull request review`,
                     };
                     break;
                 case 'PullRequestReviewCommentEvent':
                     typeData = {
-                        type: `Commented on a pull request`,
+                        type: 'github',
+                        event: `Commented on a pull request`,
                     };
                     break;
                 case 'PushEvent':
                     typeData = {
-                        type: `Pushed commits`,
+                        type: 'github',
+                        event: `Pushed commits`,
                     };
                     break;
                 case 'ReleaseEvent':
                     typeData = {
-                        type: `Published a release`,
+                        type: 'github',
+                        event: `Published a release`,
                     };
                     break;
                 case 'WatchEvent':
                     typeData = {
-                        type: `Starred a repository`,
+                        type: 'github',
+                        event: `Starred a repository`,
                     };
                     break;
                 default:
                     typeData = {
-                        type: type,
+                        type: 'github',
+                        event: type,
                     };
             }
 
@@ -218,11 +238,6 @@ async function pollGithub(){
     activity = activity.filter(checkRecent);
 
     activity.sort(compare);
-
-    for (const entry of activity) {
-        delete entry.id;
-        delete entry.datetime;
-    }
 
     for (const client of clients) {
         client.write(`data: ${JSON.stringify(activity)}\n\n`);
