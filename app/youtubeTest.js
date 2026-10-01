@@ -63,7 +63,6 @@ async function pollYoutube() {
                 const time =  datetime.getHours().toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0');
                 const title = upload.snippet.title;
                 const url = `https://www.youtube.com/watch?v=${id}`;
-                console.log(id, upload.snippet.publishedAt);
                 videos.set(id, datetime);
                 youtubeActivity.push({
                     type: 'youtube',
@@ -83,23 +82,26 @@ async function pollYoutube() {
 
     youtubeActivity.sort(compare);
 
+    videos = new Map ([...videos.entries()].sort((a, b) => b[1] - a[1]));
+
     for (const client of clients) {
+        client.write(`event: youtubeActivity\n`);
         client.write(`data: ${JSON.stringify(youtubeActivity)}\n\n`);
+
+        client.write(`event: youtubeVideos\n`);
+        client.write(`data: ${JSON.stringify([...videos.entries()])}\n\n`);
     };
 
     // debug
     const end = new Date();
     console.log(`fetched in ${end-start}ms`);
 
-    console.log(youtubeActivity);
-    console.log(videos);
-
-    return youtubeActivity;
+    return youtubeActivity, videos;
 }
 
 async function pollingLoop(refresh) {
     try {
-        youtubeActivity = await pollYoutube();
+        youtubeActivity, videos = await pollYoutube();
         setTimeout(() => pollingLoop(refresh), refresh);
         checkExpBackoff = 0;
     }
@@ -118,19 +120,19 @@ async function pollingLoop(refresh) {
             setTimeout(() => pollingLoop(refresh), refresh/10);
         }
     }
-    return youtubeActivity;
+    return youtubeActivity, videos;
 }
 
 const pollingCadence = 10000;
 
 let checkExpBackoff = 0;
 
-const videos = new Map();
+let videos = new Map();
 let youtubeActivity = [];
 
 const clients = new Set();
 
-youtubeActivity = await pollingLoop(pollingCadence);
+youtubeActivity, videos = await pollingLoop(pollingCadence);
 
 app.get('/data', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -139,7 +141,11 @@ app.get('/data', (req, res) => {
     res.flushHeaders();
 
     clients.add(res);
+    res.write(`event: youtubeActivity\n`);
     res.write(`data: ${JSON.stringify(youtubeActivity)}\n\n`);
+
+    res.write(`event: youtubeVideos\n`);
+    res.write(`data: ${JSON.stringify([...videos.entries()])}\n\n`);
 
     req.on('close', () => {
         clients.delete(res);
