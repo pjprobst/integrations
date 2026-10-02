@@ -4,17 +4,20 @@ import { useEffect, useState } from 'react';
 function App() {
   const [data, setData] = useState([]);
   //const [videos, setVideos] = useState([]);
-  const [posts, setPosts] = useState([]);
+  //const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const dataSource = new EventSource('http://localhost:8080/data');
-    dataSource.addEventListener('substackActivity', (event) => {
+    dataSource.addEventListener('leetcodeActivity', (event) => {
       setData(JSON.parse(event.data));
     });
 
+
+    /*
     dataSource.addEventListener('substackPosts', (event) => {
       setPosts(JSON.parse(event.data));
     });
+    */
 
     /*
     dataSource.addEventListener('youtubeVideos', (event) => {
@@ -26,6 +29,8 @@ function App() {
       dataSource.close();
     }
   }, []);
+
+  /*
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -51,6 +56,8 @@ function App() {
     </div>
   ));
 
+  */
+
   /*
   const videoList = videos.map((entry, index) => (
     <iframe
@@ -67,7 +74,6 @@ function App() {
         <p>
           {JSON.stringify(data)}
         </p>
-	      {postList}
       </header>
     </div>
   );
