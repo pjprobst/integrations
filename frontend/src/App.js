@@ -8,8 +8,8 @@ function App() {
 
   useEffect(() => {
     const dataSource = new EventSource('http://localhost:8080/data');
-    dataSource.addEventListener('leetcodeActivity', (event) => {
-      setData(JSON.parse(event.data));
+    dataSource.addEventListener('activities', (event) => {
+      setData(JSON.parse(event.data, null, 3));
     });
 
 
