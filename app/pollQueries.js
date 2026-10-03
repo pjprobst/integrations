@@ -84,6 +84,11 @@ function fetchActivity(onUpdate) {
 
     activities.sort(compare);
 
+    for (const client of clients) {
+        client.write(`event: activities\n`);
+        client.write(`data: ${JSON.stringify(activities)}\n\n`);
+    }
+
     onUpdate(activities);
 }
 
