@@ -103,6 +103,14 @@ export function fetchHardcover(onUpdate) {
                 const common = [datetime, status, title, author, pages, date, time, image, url];
                 if (status === "Currently Reading" || status === "Paused" || status === "Did Not Finish") {
                     const curr = book.user_book_reads[book.user_book_reads.length-1];
+                    let prevPage;
+                    if (book.user_book_reads.length > 1) {
+                        const prev = book.user_book_reads[book.user_book_reads.length-2];
+                        prevPage = prev.progress_pages;
+                        if (prevPage === null) {
+                            prevPage = 0;
+                        }
+                    }
                     const first = book.user_book_reads[0];
                     const startedAt = first.started_at;
 
@@ -119,24 +127,24 @@ export function fetchHardcover(onUpdate) {
                         progress = Math.floor((currPage/pages)*100);
                     }
 
-                    if (books.has(id) && status === "Currently Reading" && !(currPage === 0)) {
+                    if (book.user_book_reads.length > 1 && status === "Currently Reading" && !(currPage === 0)) {
                         hardcoverActivity.push({
                             type: 'hardcover',
-                            event: status,
+                            event: 'Read',
                             datetime: datetime,
                             title: title,
                             author: author,
                             url: url,
                             date: date,
                             time: time,
-                            pageDiff: (currPage - books.get(id)[1][0]),
+                            pageDiff: (currPage - prevPage),
                             progress: progress
                         });
                     }
-                    else {
+                    else if (status === "Currently Reading") {
                         hardcoverActivity.push({
                             type: 'hardcover',
-                            event: status,
+                            event: 'Started Reading',
                             datetime: datetime,
                             title: title,
                             author: author,
@@ -158,7 +166,7 @@ export function fetchHardcover(onUpdate) {
                     books.set(id, [common, [startedAt, finishedAt]]);
                     hardcoverActivity.push({
                         type: 'hardcover',
-                        event: status,
+                        event: 'Finished Reading',
                         datetime: datetime,
                         title: title,
                         author: author,
@@ -169,16 +177,6 @@ export function fetchHardcover(onUpdate) {
                 }
                 else if (status === "Want to Read") {
                     books.set(id, [common]);
-                    hardcoverActivity.push({
-                        type: 'hardcover',
-                        event: status,
-                        datetime: datetime,
-                        title: title,
-                        author: author,
-                        url: url,
-                        date: date,
-                        time: time,
-                    })
                 }
             }
         }

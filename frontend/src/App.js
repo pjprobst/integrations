@@ -3,77 +3,75 @@ import { useEffect, useState } from 'react';
 
 function App() {
   const [data, setData] = useState([]);
-  //const [videos, setVideos] = useState([]);
-  //const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const dataSource = new EventSource('http://localhost:8080/data');
     dataSource.addEventListener('activities', (event) => {
-      setData(JSON.parse(event.data, null, 3));
+      setData(JSON.parse(event.data));
     });
-
-
-    /*
-    dataSource.addEventListener('substackPosts', (event) => {
-      setPosts(JSON.parse(event.data));
-    });
-    */
-
-    /*
-    dataSource.addEventListener('youtubeVideos', (event) => {
-      setVideos(JSON.parse(event.data));
-    });
-    */
 
     return () => {
       dataSource.close();
     }
   }, []);
 
-  /*
-
-  useEffect(() => {
-    const script = document.createElement('script');
-
-    script.src = 'https://substack.com/embedjs/embed.js';
-    script.async = true;
-    script.charset = 'utf-8';
-
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [posts]);
-
-  const postList = posts.map((entry, index) => (
-    <div key={entry[0]} className="substack-post-embed">
-      <p lang="en">{entry[1][0]} by Preston</p>
-      <p>{entry[1][0]}</p>
-      <a 
-		    data-post-link href={entry[0]}>Read on Substack
-	    </a>
-    </div>
-  ));
-
-  */
-
-  /*
-  const videoList = videos.map((entry, index) => (
-    <iframe
-      key={entry[0]}
-      src={`https://www.youtube.com/embed/${entry[0]}`}
-      title={entry[0]}
-    />
-  ));
-  */
+  const activityList = data.map((activity) => {
+    switch(activity.type) {
+      case "github":
+        return (
+          <div className='github-activity'>
+            {activity.event} {activity.name} at {activity.date}, {activity.time}
+          </div>
+        );
+      case "hardcover":
+        if (activity.event === 'Read') {
+          return (
+            <div className='hardcover-activity'>
+              {activity.event} {activity.pageDiff} pages of {activity.title} by {activity.author} at {activity.date}, {activity.time}
+            </div>
+          );
+        }
+        else {
+          return (
+            <div className='hardcover-activity'>
+              {activity.event} {activity.title} by {activity.author} at {activity.date}, {activity.time}
+            </div>
+          );
+        }
+      case "youtube":
+        return (
+          <div className='youtube-activity'>
+            {activity.event} called {activity.title} at {activity.date}, {activity.time}
+          </div>
+        );
+      case "leetcode":
+        return (
+          <div className='leetcode-activity'>
+            Solved {activity.title} at {activity.date}, {activity.time}
+          </div>
+        );
+      case "substack":
+        return (
+          <div className='substack-activity'>
+            {activity.event} called {activity.title} at {activity.date}, {activity.time}
+          </div>
+        );
+      default:
+        return (
+          <div></div>
+        );
+    }
+  });
 
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          {JSON.stringify(data)}
-        </p>
+        <div className="App-activity-list">
+          Recent Activities: 
+          {`\n\n`}
+          
+          {activityList}
+        </div>
       </header>
     </div>
   );
