@@ -43,7 +43,9 @@ function getActivityDescription(activity) {
 function HomePage() {
   const [data, setData] = useState([]);
   const [emailCopied, setEmailCopied] = useState(false);
-  const [emailWasCopied, setEmailWasCopied] = useState(false);
+  const [emailWasCopied, setEmailWasCopied] = useState(
+    () => window.localStorage.getItem('emailWasCopied') === 'true'
+  );
 
   useEffect(() => {
     const dataSource = new EventSource('http://localhost:8080/data');
@@ -71,6 +73,7 @@ function HomePage() {
     await navigator.clipboard.writeText(email);
     setEmailCopied(true);
     setEmailWasCopied(true);
+    window.localStorage.setItem('emailWasCopied', 'true');
     window.setTimeout(() => setEmailCopied(false), 1500);
   };
 
