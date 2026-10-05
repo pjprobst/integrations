@@ -59,7 +59,12 @@ export function fetchLeetcode(onUpdate) {
             if (!(solvedLeetcodes.has(id))) {
                 const datetime = new Date(parseInt(AcSubmission.timestamp) * 1000);
                 const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
-                const time =  datetime.getHours().toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0');
+
+                const suffix = datetime.getHours() < 12 ? "am" : "pm";
+                const hours = datetime.getHours() > 12 ? datetime.getHours()-12 : datetime.getHours();
+
+                const time = (hours === 0 ? 12 : hours).toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0') + suffix + " ET";
+
                 const title = AcSubmission.title;
                 const problemLink = `https://leetcode.com/problems/${AcSubmission.titleSlug}`;
                 const solutionLink = `https://leetcode.com/submissions/detail/${id}/`;

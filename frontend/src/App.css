@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: whitesmoke;
   color: #171717;
   -ms-overflow-style: none;
 }
@@ -32,11 +32,16 @@ a:hover {
   color: #235dcf;
 }
 
+a:visited,
+a:active {
+  color: #800080;
+}
+
 .site-shell {
   width: 100%;
   max-width: 1756px;
   margin: 0 auto;
-  padding-inline: 100px;
+  padding-inline: 300px;
 }
 
 .site-nav {
@@ -99,7 +104,7 @@ a:hover {
 .intro-copy p {
   margin: 0 0 4px;
   font-size: 0.875rem;
-  line-height: 1.2;
+  line-height: 1.5;
 }
 
 .intro-copy .role {
@@ -112,6 +117,27 @@ a:hover {
   gap: 8px 24px;
   margin-top: auto;
   font-size: 0.875rem;
+}
+
+.email-button {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.email-button:hover {
+  color: #235dcf;
+}
+
+.email-button.copied,
+.email-button.copied:hover {
+  color: #800080;
 }
 
 .bio-sections {
@@ -154,7 +180,7 @@ a:hover {
   overflow: hidden;
   padding: 10px 25px 12px;
   border: 2px solid #171717;
-  background: #ffffff;
+  background: whitesmoke;
   color: #171717;
 }
 
@@ -233,9 +259,9 @@ footer {
   text-align: center;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1550px) {
   .site-shell {
-    padding-inline: 24px;
+    padding-inline: 200px;
   }
 
   .site-nav {
@@ -256,7 +282,34 @@ footer {
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 1215px) {
+  .site-shell {
+    padding-inline: 40px;
+  }
+
+  .site-nav {
+    padding: 12px 0;
+  }
+
+  .nav-links {
+    gap: 12px 30px;
+    flex-wrap: wrap;
+  }
+
+  .page-grid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+
+  .activity-panel li {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 896px) {
+  .site-shell {
+    padding-inline: 24px;
+  }
+
   .nav-links {
     gap: 10px 22px;
   }
