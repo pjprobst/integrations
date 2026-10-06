@@ -15,10 +15,10 @@ const wipPaths = new Set(['/projects', '/videos', '/writings', '/readings']);
 const email = 'pjamesprobst@gmail.com';
 
 const activityTypes = {
-  github: { icon: '/github_icon.png', label: 'GitHub' },
+  github: { icon: '/github_icon.png', darkIcon: '/github_white_icon.png', label: 'GitHub' },
   hardcover: { icon: '/hardcover_icon.png', label: 'Hardcover' },
   youtube: { icon: '/youtube_icon.png', label: 'YouTube' },
-  leetcode: { icon: '/leetcode_logo.png', label: 'LeetCode' },
+  leetcode: { icon: '/leetcode_logo.png', darkIcon: '/leetcode_white_icon.png', label: 'LeetCode' },
   substack: { icon: '/substack_icon.png', label: 'Substack' },
 };
 
@@ -48,10 +48,25 @@ function getActivityDescription(activity) {
 
 function HomePage() {
   const [data, setData] = useState([]);
+  const [darkMode, setDarkMode] = useState(
+    () => window.localStorage.getItem('theme') === 'dark'
+  );
+  const [themeWasToggled, setThemeWasToggled] = useState(
+    () => window.localStorage.getItem('themeWasToggled') === 'true'
+  );
   const [emailCopied, setEmailCopied] = useState(false);
   const [emailWasCopied, setEmailWasCopied] = useState(
     () => window.localStorage.getItem('emailWasCopied') === 'true'
   );
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', darkMode);
+    window.localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+
+    return () => {
+      document.body.classList.remove('dark-mode');
+    };
+  }, [darkMode]);
 
   useEffect(() => {
     const dataSource = new EventSource('http://localhost:8080/data');
@@ -83,6 +98,12 @@ function HomePage() {
     window.setTimeout(() => setEmailCopied(false), 1500);
   };
 
+  const toggleTheme = () => {
+    setDarkMode((currentMode) => !currentMode);
+    setThemeWasToggled(true);
+    window.localStorage.setItem('themeWasToggled', 'true');
+  };
+
   return (
     <div className="site-shell" id="home">
       <nav className="site-nav">
@@ -102,14 +123,19 @@ function HomePage() {
             );
           })}
         </div>
+        <button
+          className={`theme-toggle${themeWasToggled ? ' toggled' : ''}`}
+          type="button"
+          onClick={toggleTheme}
+        >
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
+        </button>
       </nav>
 
       <main className="page-grid">
         <div className="main-column">
           <section className="intro">
-            <div className="portrait-placeholder">
-              Picture of me
-            </div>
+            <img className="portrait" src="/me.jpeg" alt="Preston Probst" />
 
             <div className="intro-copy">
               <h1>Preston Probst</h1>
@@ -160,7 +186,13 @@ function HomePage() {
 
                     return (
                       <li className={`${activity.type}-activity`} key={`${activity.type}-${activity.time}-${index}`}>
-                        <img className="activity-icon" src={activityTypes[activity.type].icon} alt="" />
+                        <img
+                          className="activity-icon"
+                          src={darkMode && activityTypes[activity.type].darkIcon
+                            ? activityTypes[activity.type].darkIcon
+                            : activityTypes[activity.type].icon}
+                          alt=""
+                        />
                         <span className="activity-content">
                           <span className="activity-meta">{activityTypes[activity.type].label} - {activity.time}</span>
                           <span>{description}</span>

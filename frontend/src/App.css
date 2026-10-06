@@ -1,4 +1,9 @@
 :root {
+  --background: whitesmoke;
+  --text: #171717;
+  --border: #171717;
+  --subtle-border: #d4d4d4;
+  --muted: #737373;
   --link: #4f86ff;
 }
 
@@ -9,9 +14,17 @@ html {
 }
 
 body {
-  background: whitesmoke;
-  color: #171717;
+  background: var(--background);
+  color: var(--text);
   -ms-overflow-style: none;
+}
+
+body.dark-mode {
+  --background: #171717;
+  --text: #f5f5f5;
+  --border: #f5f5f5;
+  --subtle-border: #4a4a4a;
+  --muted: #b5b5b5;
 }
 
 body::-webkit-scrollbar {
@@ -46,17 +59,40 @@ a:active {
 
 .site-nav {
   min-height: 47px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
   font-size: 1rem;
 }
 
 .nav-links {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(28px, 4.2vw, 68px);
+}
+
+.theme-toggle {
+  grid-column: 3;
+  justify-self: end;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: #235dcf;
+}
+
+.theme-toggle.toggled,
+.theme-toggle.toggled:hover {
+  color: #800080;
 }
 
 .page-grid {
@@ -77,14 +113,11 @@ a:active {
   align-items: start;
 }
 
-.portrait-placeholder {
+.portrait {
   height: 170px;
   width: 170px;
-  display: grid;
-  place-items: center;
-  background: #1d1d1d;
-  color: #f2f2f2;
-  font-size: 1rem;
+  display: block;
+  object-fit: cover;
 }
 
 .intro-copy {
@@ -151,7 +184,7 @@ a:active {
 }
 
 .section-lead {
-  color: #171717;
+  color: var(--text);
   font-size: 1.375rem;
   font-weight: 700;
   line-height: 1;
@@ -179,16 +212,16 @@ a:active {
   flex-direction: column;
   overflow: hidden;
   padding: 10px 25px 12px;
-  border: 2px solid #171717;
-  background: whitesmoke;
-  color: #171717;
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--text);
 }
 
 .activity-panel h2 {
   flex: 0 0 auto;
   margin: 0;
   padding: 0 0 10px;
-  border-bottom: 1px solid #171717;
+  border-bottom: 1px solid var(--border);
   font-size: 2rem;
   font-weight: 400;
   line-height: 1.25;
@@ -209,7 +242,7 @@ a:active {
 .activity-date-group h3 {
   margin: 0;
   padding: 12px 0 7px;
-  border-bottom: 1px solid #d4d4d4;
+  border-bottom: 1px solid var(--subtle-border);
   font-size: 0.9375rem;
   line-height: 1.4;
 }
@@ -239,7 +272,7 @@ a:active {
 }
 
 .activity-meta {
-  color: #737373;
+  color: var(--muted);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.25;
@@ -312,6 +345,20 @@ footer {
 
   .nav-links {
     gap: 10px 22px;
+  }
+
+  .site-nav {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .nav-links,
+  .theme-toggle {
+    grid-column: 1;
+  }
+
+  .theme-toggle {
+    justify-self: center;
   }
 
   .page-grid {
