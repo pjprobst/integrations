@@ -30,50 +30,40 @@ app.use(cors({
 }));
 
 let substackActivity = [];
-let blogposts = new Map();
-fetchSubstack((newActivity, newPosts) => {
+fetchSubstack((newActivity) => {
     substackActivity = newActivity;
-    blogposts = newPosts;
     fetchActivity((newActivities) => {
         activities = newActivities;
     });
 });
 
 let youtubeActivity = [];
-let videos = new Map();
-fetchYoutube((newActivity, newVideos) => {
+fetchYoutube((newActivity) => {
     youtubeActivity = newActivity;
-    videos = newVideos;
     fetchActivity((newActivities) => {
         activities = newActivities;
     });
 });
 
 let githubActivity = [];
-let actions = new Map();
-fetchGithub((newActivity, newActions) => {
+fetchGithub((newActivity) => {
     githubActivity = newActivity;
-    actions = newActions;
     fetchActivity((newActivities) => {
         activities = newActivities;
     });
 });
 
 let hardcoverActivity = [];
-let books = new Map();
-fetchHardcover((newActivity, newBooks) => {
+fetchHardcover((newActivity) => {
     hardcoverActivity = newActivity;
-    books = newBooks;
     fetchActivity((newActivities) => {
         activities = newActivities;
     });
 });
 
 let leetcodeActivity = [];
-let solves = new Map();
-fetchLeetcode((newActivity, newSolves) => {
+fetchLeetcode((newActivity) => {
     leetcodeActivity = newActivity;
-    solves = newSolves;
     fetchActivity((newActivities) => {
         activities = newActivities;
     });

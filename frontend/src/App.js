@@ -27,9 +27,15 @@ function getActivityDescription(activity) {
     case 'github':
       return `${activity.event} ${activity.name}`;
     case 'hardcover':
-      return activity.event === 'Read'
-        ? `${activity.event} ${activity.pageDiff} pages of ${activity.title} by ${activity.author}`
-        : `${activity.event} ${activity.title} by ${activity.author}`;
+      if (activity.event === 'Read with diff') {
+        return activity.pageDiff === 1 ? `Read ${activity.pageDiff} page of ${activity.title} by ${activity.author}` :  `Read ${activity.pageDiff} pages of ${activity.title} by ${activity.author}`;
+      }
+      else if (activity.event === 'Read no diff') {
+        return `Read to page ${activity.currPage} of ${activity.title} by ${activity.author}`;
+      }
+      else {
+        return `${activity.event} ${activity.title} by ${activity.author}`;
+      }
     case 'youtube':
     case 'substack':
       return `${activity.event} called ${activity.title}`;

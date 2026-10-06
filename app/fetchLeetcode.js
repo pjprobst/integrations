@@ -13,7 +13,6 @@ const query = gql`
 `
 export function fetchLeetcode(onUpdate) {
     let leetcodeActivity = [];
-    let solvedLeetcodes = new Map();
 
     let checkExpBackoff = 0;
 
@@ -56,7 +55,7 @@ export function fetchLeetcode(onUpdate) {
         });
         for (const AcSubmission of res.recentAcSubmissionList) {
             const id = AcSubmission.id;
-            if (!(solvedLeetcodes.has(id))) {
+            if (!(leetcodeActivity.some(x => x.id === id))) {
                 const datetime = new Date(parseInt(AcSubmission.timestamp) * 1000);
                 const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
 
@@ -79,7 +78,6 @@ export function fetchLeetcode(onUpdate) {
                     datetime: datetime,
                     id: id
                 })
-                solvedLeetcodes.set(id, [datetime, date, time, title, problemLink, solutionLink]);
             }
         }
 
@@ -87,9 +85,7 @@ export function fetchLeetcode(onUpdate) {
 
         leetcodeActivity.sort(compare);
 
-        solvedLeetcodes = new Map ([...solvedLeetcodes.entries()].sort((a, b) => b[1][0] - a[1][0]));
-
-        onUpdate(leetcodeActivity, solvedLeetcodes);
+        onUpdate(leetcodeActivity);
     }
 
     async function pollingLoop(refresh) {

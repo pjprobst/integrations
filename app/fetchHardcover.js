@@ -13,7 +13,8 @@ const query = gql`
                     status
                 }
                 updated_at
-                user_book_reads {
+                user_book_reads(order_by: { id: desc }, limit: 1)
+                {
                     id
                     progress_pages
                     started_at
@@ -41,7 +42,6 @@ const query = gql`
 
 export function fetchHardcover(onUpdate) {
     let hardcoverActivity = [];
-    let books = new Map();
 
     let checkExpBackoff = 0;
 
@@ -84,9 +84,10 @@ export function fetchHardcover(onUpdate) {
         });
 
         for (const book of res.me[0].user_books) {
-            const id = book.id;
+            const key = book.user_book_reads.length !== 0 ? (book.user_book_reads[book.user_book_reads.length-1].id + book.updated_at) : (book.id + book.updated_at);
+            const id = book.user_book_reads.length !== 0 ? book.user_book_reads[book.user_book_reads.length-1].id : book.id;
             const datetime = new Date(book.updated_at);
-            if ((!(books.has(id))) || ((books.has(id) && (!(books.get(id)[0][0].getTime() === datetime.getTime()))))) {
+            if (!(hardcoverActivity.some(x => x.key === key))) {
                 const status = book.user_book_status.status;
                 const image = book.edition.image.url;
                 const title = book.edition.title;
@@ -106,43 +107,73 @@ export function fetchHardcover(onUpdate) {
 
                 const common = [datetime, status, title, author, pages, date, time, image, url];
                 if (status === "Currently Reading" || status === "Paused" || status === "Did Not Finish") {
-                    const curr = book.user_book_reads[book.user_book_reads.length-1];
-                    let prevPage;
-                    if (book.user_book_reads.length > 1) {
-                        const prev = book.user_book_reads[book.user_book_reads.length-2];
-                        prevPage = prev.progress_pages;
-                        if (prevPage === null) {
-                            prevPage = 0;
-                        }
-                    }
-                    const first = book.user_book_reads[0];
-                    const startedAt = first.started_at;
+                    const curr = book.user_book_reads[0];
 
                     let currPage = curr.progress_pages;
-                    if (currPage === null) {
-                        currPage = 0;
+                    if (currPage === null || pages === '?') {
+                        currPage = '?';
                     }
 
                     let progress;
-                    if (pages === '?') {
+                    if (pages === '?' || currPage ==='?') {
                         progress = '?';
                     }
                     else {
                         progress = Math.floor((currPage/pages)*100);
                     }
 
-                    if (book.user_book_reads.length > 1 && status === "Currently Reading" && !(currPage === 0)) {
+                    if (status === "Currently Reading" && !(currPage === 0) && hardcoverActivity.some(x => x.id === id)) {
+                        const mostRecent = hardcoverActivity
+                            .filter(activity => activity.id === id)
+                            .reduce((latest, activity) => !latest || activity.datetime > latest.datetime ? activity : latest, null);
+                        if (mostRecent !== null && mostRecent.currPage !== null && mostRecent.currPage !== undefined) {
+                            hardcoverActivity.push({
+                                type: 'hardcover',
+                                event: 'Read with diff',
+                                datetime: datetime,
+                                title: title,
+                                author: author,
+                                url: url,
+                                date: date,
+                                time: time,
+                                currPage: currPage,
+                                pageDiff: currPage === '?' || mostRecent.currPage === '?' ? '?' : currPage - mostRecent.currPage,
+                                progress: progress,
+                                id: id,
+                                key: key
+                            });
+                        }
+                        else {
+                            hardcoverActivity.push({
+                                type: 'hardcover',
+                                event: 'Read no diff',
+                                datetime: datetime,
+                                title: title,
+                                author: author,
+                                url: url,
+                                date: date,
+                                time: time,
+                                currPage: currPage,
+                                progress: progress,
+                                id: id,
+                                key: key
+                            });
+                        }
+                    }
+                    else if (status === "Currently Reading" && !(currPage === 0) && !(hardcoverActivity.some(x => x.id === id))) {
                         hardcoverActivity.push({
                             type: 'hardcover',
-                            event: 'Read',
+                            event: 'Read no diff',
                             datetime: datetime,
                             title: title,
                             author: author,
                             url: url,
                             date: date,
                             time: time,
-                            pageDiff: (currPage - prevPage),
-                            progress: progress
+                            currPage: currPage,
+                            progress: progress,
+                            id: id,
+                            key: key
                         });
                     }
                     else if (status === "Currently Reading") {
@@ -155,19 +186,18 @@ export function fetchHardcover(onUpdate) {
                             url: url,
                             date: date,
                             time: time,
-                            page: currPage,
-                            progress: progress
+                            currPage: currPage,
+                            progress: progress,
+                            id: id,
+                            key: key
                         });
                     }
-                    books.set(id, [common, [currPage, progress, startedAt]]);
                 }
                 else if (status === "Read") {
                     const first = book.user_book_reads[0];
-                    const curr = book.user_book_reads[book.user_book_reads.length-1];
                     const startedAt = first.started_at;
-                    const finishedAt = curr.finished_at;
+                    const finishedAt = first.finished_at;
 
-                    books.set(id, [common, [startedAt, finishedAt]]);
                     hardcoverActivity.push({
                         type: 'hardcover',
                         event: 'Finished Reading',
@@ -177,10 +207,9 @@ export function fetchHardcover(onUpdate) {
                         url: url,
                         date: date,
                         time: time,
+                        id: id,
+                        key: key
                     })
-                }
-                else if (status === "Want to Read") {
-                    books.set(id, [common]);
                 }
             }
         }
@@ -189,9 +218,7 @@ export function fetchHardcover(onUpdate) {
 
         hardcoverActivity.sort(compare);
 
-        books = new Map ([...books.entries()].sort((a, b) => b[1][0][0] - a[1][0][0]));
-
-        onUpdate(hardcoverActivity, books);
+        onUpdate(hardcoverActivity);
     }
 
     async function pollingLoop(refresh) {

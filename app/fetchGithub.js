@@ -10,7 +10,6 @@ export function fetchGithub(onUpdate) {
     const login = "pjprobst";
 
     let githubActivity = [];
-    let actions = new Map();
 
     let checkExpBackoff = 0;
 
@@ -59,7 +58,7 @@ export function fetchGithub(onUpdate) {
         for await (const { data: events } of iterator) {
             for (const event of events) {
                 const id = event.id;
-                if (!(actions.has(id))) {
+                if (!(githubActivity.some(x => x.id === id))) {
                     const datetime = new Date(event.created_at);
                     const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
                     const suffix = datetime.getHours() < 12 ? "am" : "pm";
@@ -213,21 +212,17 @@ export function fetchGithub(onUpdate) {
                         const url = tempUrl.replace("api", "www").replace("repos/", "");
 
                         output = { ...initOutput, name, url };
-                        actions.set(id, [datetime, date, time, typeData.event, name, url]);
                     }
                     else {
                         const org = event.org?.login ?? "";
                         if ( org === 'character-tech' ) {
                             output = { ...initOutput, name:"work - private repo" };
-                            actions.set(id, [datetime, date, time, typeData.event, "work - private repo"]);
                         }
                         else if ( org === 'PittCS1501' ) {
                             output = { ...initOutput, name:"school - private repo" };
-                            actions.set(id, [datetime, date, time, typeData.event, "school - private repo"]);
                         }
                         else {
                             output = { ...initOutput, name:"private repo" };
-                            actions.set(id, [datetime, date, time, typeData.event, "private repo"]);
                         }
                     }
                     githubActivity.push(output);
@@ -239,9 +234,7 @@ export function fetchGithub(onUpdate) {
 
         githubActivity.sort(compare);
 
-        actions = new Map ([...actions.entries()].sort((a, b) => b[1][0] - a[1][0]));
-
-        onUpdate(githubActivity, actions)
+        onUpdate(githubActivity)
     }
 
     async function pollingLoop(refresh) {

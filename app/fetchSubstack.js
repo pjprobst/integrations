@@ -1,6 +1,5 @@
 export function fetchSubstack(onUpdate) {
     let substackActivity = [];
-    let blogposts = new Map();
 
     let checkExpBackoff = 0;
 
@@ -40,7 +39,7 @@ export function fetchSubstack(onUpdate) {
         for (const entry of body) {
             const url = entry.canonical_url;
             const title = entry.title;
-            if (!(blogposts.has(url))) {
+            if (!(substackActivity.some(x => x.url === url))) {
                 const datetime = new Date(entry.post_date);
                 const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
 
@@ -49,7 +48,6 @@ export function fetchSubstack(onUpdate) {
 
                 const time = (hours === 0 ? 12 : hours).toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0') + suffix + " ET";
 
-                blogposts.set(url, [title, datetime]);
                 substackActivity.push({
                     type: 'substack',
                     event: 'Wrote a blog post',
@@ -66,9 +64,7 @@ export function fetchSubstack(onUpdate) {
 
         substackActivity.sort(compare);
 
-        blogposts = new Map ([...blogposts.entries()].sort((a, b) => b[1][1] - a[1][1]));
-
-        onUpdate(substackActivity, blogposts);
+        onUpdate(substackActivity);
     }
 
     async function pollingLoop(refresh) {

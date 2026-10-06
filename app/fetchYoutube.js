@@ -11,7 +11,6 @@ const youtube = google.youtube({
 
 export function fetchYoutube(onUpdate) {
     let youtubeActivity = [];
-    let videos = new Map();
 
     let checkExpBackoff = 0;
 
@@ -52,7 +51,7 @@ export function fetchYoutube(onUpdate) {
         for (const upload of res.data.items) {
             if (upload.snippet.type === 'upload') {
                 const id = upload.contentDetails.upload.videoId;
-                if (!(videos.has(id))) {
+                if (!(youtubeActivity.some(x => x.id === id))) {
                     const datetime = new Date(upload.snippet.publishedAt);
                     const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
 
@@ -63,7 +62,6 @@ export function fetchYoutube(onUpdate) {
 
                     const title = upload.snippet.title;
                     const url = `https://www.youtube.com/watch?v=${id}`;
-                    videos.set(id, datetime);
                     youtubeActivity.push({
                         type: 'youtube',
                         event: 'Uploaded a YouTube video',
@@ -82,9 +80,7 @@ export function fetchYoutube(onUpdate) {
 
         youtubeActivity.sort(compare);
 
-        videos = new Map ([...videos.entries()].sort((a, b) => b[1] - a[1]));
-
-        onUpdate(youtubeActivity, videos);
+        onUpdate(youtubeActivity);
     }
 
     async function pollingLoop(refresh) {
