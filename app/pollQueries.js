@@ -5,6 +5,8 @@ import { fetchLeetcode } from "./fetchLeetcode.js";
 import { fetchYoutube } from "./fetchYoutube.js";
 import express from "express";
 import cors from "cors";
+import { DatabaseSync } from "node:sqlite";
+import { fileURLToPath } from "node:url";
 
 const app = express();
 const port = 8080;
@@ -28,6 +30,28 @@ const compare = (a, b) => {
 app.use(cors({
     origin: 'http://localhost:3000'
 }));
+
+const databasePath = fileURLToPath(
+    new URL('./data/my_database.db',
+    import.meta.url)
+);
+
+const database = new DatabaseSync(databasePath);
+
+const getVideos = database.prepare(`
+    SELECT * FROM youtube
+    ORDER BY postedAt DESC
+`);
+
+const getWritings = database.prepare(`
+    SELECT * FROM substack
+    ORDER BY postedAt DESC
+`);
+
+const getReadings = database.prepare(`
+    SELECT * FROM hardcover
+    ORDER BY updatedAt DESC
+`);
 
 let substackActivity = [];
 fetchSubstack((newActivity) => {
@@ -82,7 +106,19 @@ function fetchActivity(onUpdate) {
     onUpdate(activities);
 }
 
-app.get('/data', (req, res) => {
+app.get('/readings', (req, res) => {
+    res.json(getReadings.all());
+});
+
+app.get('/videos', (req, res) => {
+    res.json(getVideos.all());
+});
+
+app.get('/writings', (req, res) => {
+    res.json(getWritings.all());
+});
+
+app.get('/activities', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');

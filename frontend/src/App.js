@@ -69,7 +69,7 @@ function HomePage() {
   }, [darkMode]);
 
   useEffect(() => {
-    const dataSource = new EventSource('http://localhost:8080/data');
+    const dataSource = new EventSource('http://localhost:8080/activities');
     dataSource.addEventListener('activities', (event) => {
       setData(JSON.parse(event.data));
     });
