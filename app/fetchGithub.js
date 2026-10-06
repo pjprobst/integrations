@@ -1,5 +1,6 @@
 import { Octokit } from "octokit";
 import dotenv from 'dotenv';
+import { formatEasternDateTime } from "./formatEasternDateTime.js";
 
 dotenv.config({path: '.env'});
 const pat = process.env.GITHUB_PAT;
@@ -60,11 +61,7 @@ export function fetchGithub(onUpdate) {
                 const id = event.id;
                 if (!(githubActivity.some(x => x.id === id))) {
                     const datetime = new Date(event.created_at);
-                    const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
-                    const suffix = datetime.getHours() < 12 ? "am" : "pm";
-                    const hours = datetime.getHours() > 12 ? datetime.getHours()-12 : datetime.getHours();
-
-                    const time = (hours === 0 ? 12 : hours).toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0') + suffix + " ET";
+                    const { date, time } = formatEasternDateTime(datetime);
 
                     let typeData;
                     const type = event.type;

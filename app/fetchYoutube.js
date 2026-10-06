@@ -1,5 +1,8 @@
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import { formatEasternDateTime } from "./formatEasternDateTime.js";
+import { DatabaseSync } from "node:sqlite";
+import { fileURLToPath } from "node:url";
 
 dotenv.config({path: '.env'});
 const apiKey = process.env.YOUTUBE_API_KEY;
@@ -8,6 +11,30 @@ const youtube = google.youtube({
     version: 'v3', 
     auth: apiKey
 });
+
+const databasePath = fileURLToPath(
+    new URL('./data/my_database.db',
+    import.meta.url)
+);
+
+const database = new DatabaseSync(databasePath);
+
+const inDatabase = database.prepare(`
+    SELECT 1
+    FROM youtube
+    WHERE id = ?
+    LIMIT 1
+`);
+
+const insertVideo = database.prepare(`
+    INSERT INTO youtube (
+    id,
+    postedAt,
+    title
+    )
+    VALUES
+    (?, ?, ?)
+`);
 
 export function fetchYoutube(onUpdate) {
     let youtubeActivity = [];
@@ -48,19 +75,26 @@ export function fetchYoutube(onUpdate) {
             channelId: 'UCTyRZedeg9bRGozlGVi45mg',
             maxResults: 50,
         });
+
+        if (!res.ok) {
+            throw new Error(`YouTube returned ${res.status}`);
+        }
+
         for (const upload of res.data.items) {
             if (upload.snippet.type === 'upload') {
                 const id = upload.contentDetails.upload.videoId;
+                const datetime = new Date(upload.snippet.publishedAt);
+                const title = upload.snippet.title;
+                if (inDatabase.get(id) === undefined) {
+                    insertVideo.run(
+                        id,
+                        datetime.getTime(),
+                        title
+                    );
+                }
+
                 if (!(youtubeActivity.some(x => x.id === id))) {
-                    const datetime = new Date(upload.snippet.publishedAt);
-                    const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
-
-                    const suffix = datetime.getHours() < 12 ? "am" : "pm";
-                    const hours = datetime.getHours() > 12 ? datetime.getHours()-12 : datetime.getHours();
-
-                    const time = (hours === 0 ? 12 : hours).toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0') + suffix + " ET";
-
-                    const title = upload.snippet.title;
+                    const { date, time } = formatEasternDateTime(datetime);
                     const url = `https://www.youtube.com/watch?v=${id}`;
                     youtubeActivity.push({
                         type: 'youtube',

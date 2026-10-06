@@ -92,11 +92,6 @@ app.get('/data', (req, res) => {
     res.write(`event: activities\n`);
     res.write(`data: ${JSON.stringify(activities)}\n\n`);
 
-    /*
-    res.write(`event: youtubeVideos\n`);
-    res.write(`data: ${JSON.stringify([...blogposts.entries()])}\n\n`);
-    */
-
     req.on('close', () => {
         clients.delete(res);
     });

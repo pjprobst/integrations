@@ -1,3 +1,31 @@
+import { formatEasternDateTime } from "./formatEasternDateTime.js";
+import { DatabaseSync } from "node:sqlite";
+import { fileURLToPath } from "node:url";
+
+const databasePath = fileURLToPath(
+    new URL('./data/my_database.db',
+    import.meta.url)
+);
+
+const database = new DatabaseSync(databasePath);
+
+const inDatabase = database.prepare(`
+    SELECT 1
+    FROM substack
+    WHERE url = ?
+    LIMIT 1
+`);
+
+const insertPost = database.prepare(`
+    INSERT INTO substack (
+    url,
+    title,
+    postedAt
+    )
+    VALUES
+    (?, ?, ?)
+`);
+
 export function fetchSubstack(onUpdate) {
     let substackActivity = [];
 
@@ -34,19 +62,25 @@ export function fetchSubstack(onUpdate) {
         
         const res = await fetch('https://prestonpro.substack.com/api/v1/posts?limit=20');
 
+        if (!res.ok) {
+            throw new Error(`Substack returned ${res.status}`);
+        }
+
         const body = await res.json();
 
         for (const entry of body) {
             const url = entry.canonical_url;
             const title = entry.title;
+            const datetime = new Date(entry.post_date);
+            if (inDatabase.get(url) === undefined) {
+                insertPost.run(
+                    url,
+                    title,
+                    datetime.getTime()
+                );
+            }
             if (!(substackActivity.some(x => x.url === url))) {
-                const datetime = new Date(entry.post_date);
-                const date = (datetime.getMonth()+1).toString().padStart(2, '0') + "." + datetime.getDate().toString().padStart(2, '0') + "." + datetime.getFullYear();
-
-                const suffix = datetime.getHours() < 12 ? "am" : "pm";
-                const hours = datetime.getHours() > 12 ? datetime.getHours()-12 : datetime.getHours();
-
-                const time = (hours === 0 ? 12 : hours).toString().padStart(2, '0') + ":" + datetime.getMinutes().toString().padStart(2, '0') + ":" + datetime.getSeconds().toString().padStart(2, '0') + suffix + " ET";
+                const { date, time } = formatEasternDateTime(datetime);
 
                 substackActivity.push({
                     type: 'substack',

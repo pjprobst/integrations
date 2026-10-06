@@ -286,6 +286,10 @@ a:active {
   object-fit: contain;
 }
 
+body.dark-mode .leetcode-activity .activity-icon {
+  transform: scale(0.828156, 0.833984);
+}
+
 footer {
   padding: 12px 0 0;
   font-size: 1rem;
