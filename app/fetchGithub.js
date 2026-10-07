@@ -206,7 +206,8 @@ export function fetchGithub(onUpdate) {
                     if ( event.public === true ) {
                         const name = event.repo.name;
                         const tempUrl = event.repo.url;
-                        const url = tempUrl.replace("api", "www").replace("repos/", "");
+                        const repoUrl = tempUrl.replace("api", "www").replace("repos/", "");
+                        const url = type === 'PushEvent' ? `${repoUrl}/commit/${event.payload.head}` : repoUrl;
 
                         output = { ...initOutput, name, url };
                     }

@@ -98,7 +98,7 @@ export function fetchYoutube(onUpdate) {
                     const url = `https://www.youtube.com/watch?v=${id}`;
                     youtubeActivity.push({
                         type: 'youtube',
-                        event: 'Uploaded a YouTube video',
+                        event: 'Uploaded a video',
                         date: date,
                         time: time,
                         datetime: datetime,

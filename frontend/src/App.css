@@ -59,14 +59,13 @@ a:active {
 
 .site-nav {
   min-height: 47px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 1rem;
 }
 
 .nav-links {
-  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,8 +73,6 @@ a:active {
 }
 
 .theme-toggle {
-  grid-column: 3;
-  justify-self: end;
   border: 0;
   padding: 0;
   background: none;
@@ -183,11 +180,46 @@ a:active {
   line-height: 1.7;
 }
 
+.bio-sections p:last-child {
+  margin-bottom: 0;
+}
+
 .section-lead {
   color: var(--text);
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 700;
   line-height: 1;
+}
+
+.previous-section .section-lead,
+.previous-entry,
+.previous-role,
+.previous-description {
+  display: block;
+}
+
+.previous-section .section-lead {
+  margin-bottom: 8px;
+}
+
+.previous-entry {
+  margin-bottom: 16px;
+}
+
+.previous-entry:last-child {
+  margin-bottom: 0;
+}
+
+.previous-role {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.previous-description {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .directory {
@@ -202,7 +234,7 @@ a:active {
 
 .directory a {
   color: var(--link);
-  font-size: 1.375rem;
+  font-size: 1.25rem;
 }
 
 .activity-panel {
@@ -243,7 +275,7 @@ a:active {
   margin: 0;
   padding: 12px 0 7px;
   border-bottom: 1px solid var(--subtle-border);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.4;
 }
 
@@ -260,7 +292,7 @@ a:active {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.35;
 }
 
@@ -269,6 +301,23 @@ a:active {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.activity-content > a,
+.activity-content > a:visited,
+.activity-content > a:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+.activity-content > a:hover {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.activity-content > a:visited:hover {
+  color: #800080;
 }
 
 .activity-meta {
@@ -288,6 +337,147 @@ a:active {
 
 body.dark-mode .leetcode-activity .activity-icon {
   transform: scale(0.828156, 0.833984);
+}
+
+.videos-page {
+  width: min(90%, 1040px);
+  margin: 0 auto;
+  padding: 16px 0 40px;
+}
+
+.videos-page > h1 {
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.video-entry {
+  margin-bottom: 36px;
+}
+
+.entry-date {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.video-entry iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: 0;
+}
+
+.writings-page {
+  width: min(90%, 1040px);
+  margin: 0 auto;
+  padding: 16px 0 40px;
+}
+
+.writings-page > h1 {
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.page-message {
+  text-align: center;
+}
+
+.writing-entry {
+  margin-bottom: 36px;
+}
+
+.substack-post-embed,
+.substack-post-embed iframe {
+  width: 100% !important;
+  max-width: none !important;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.readings-page {
+  width: min(90%, 1040px);
+  margin: 0 auto;
+  padding: 16px 0 40px;
+}
+
+.readings-page > h1 {
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.readings-message {
+  text-align: center;
+}
+
+.reading-section {
+  margin-bottom: 36px;
+}
+
+.reading-section > h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.book-card {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--subtle-border);
+}
+
+.book-cover {
+  width: 90px;
+  aspect-ratio: 2 / 3;
+  display: block;
+  object-fit: cover;
+}
+
+.book-cover-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--subtle-border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.book-details h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.book-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-details p {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.book-progress {
+  height: 3px;
+  margin-top: auto;
+  overflow: hidden;
+  background: var(--subtle-border);
+}
+
+.book-progress span {
+  height: 100%;
+  display: block;
+  background: var(--text);
 }
 
 footer {
@@ -314,9 +504,6 @@ footer {
     grid-template-columns: minmax(0, 1fr) 330px;
   }
 
-  .activity-panel li {
-    font-size: 1rem;
-  }
 }
 
 @media (max-width: 1215px) {
@@ -337,9 +524,6 @@ footer {
     grid-template-columns: minmax(0, 1fr) 330px;
   }
 
-  .activity-panel li {
-    font-size: 1rem;
-  }
 }
 
 @media (max-width: 896px) {
@@ -349,20 +533,6 @@ footer {
 
   .nav-links {
     gap: 10px 22px;
-  }
-
-  .site-nav {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .nav-links,
-  .theme-toggle {
-    grid-column: 1;
-  }
-
-  .theme-toggle {
-    justify-self: center;
   }
 
   .page-grid {
@@ -393,7 +563,7 @@ footer {
   }
 
   .site-nav {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 
   .intro {
@@ -418,20 +588,12 @@ footer {
     font-size: 1rem;
   }
 
-  .section-lead {
-    font-size: 1.25rem;
-  }
-
-  .directory a {
-    font-size: 1.375rem;
-  }
-
   .activity-date-group ul {
     grid-template-columns: 1fr;
     gap: 18px;
   }
 
   .activity-panel li {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 }
