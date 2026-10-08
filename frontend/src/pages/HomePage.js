@@ -34,7 +34,6 @@ function getGithubDescription(activity) {
     'Created a new branch': 'Created a branch',
     'Created a new tag': 'Created a tag',
     'Created a new repo': 'Created repository',
-    'Added user to a repository': 'Added a user',
     'Commented on an issue / pull request': 'Commented on an issue or pull request',
   };
   const action = actions[activity.event] || activity.event;
@@ -55,8 +54,8 @@ function getGithubDescription(activity) {
     return `Made ${repository} public`;
   }
 
-  if (activity.event === 'Added user to a repository') {
-    return `${action} to ${repository}`;
+  if (activity.event === 'Accepted an invitation to') {
+    return `${action} ${repository}`;
   }
 
   if (activity.event === 'Created a new repo') {

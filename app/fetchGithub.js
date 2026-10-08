@@ -144,7 +144,7 @@ export function fetchGithub(onUpdate) {
                         case 'MemberEvent':
                             typeData = {
                                 type: 'github',
-                                event: `Added user to a repository`,
+                                event: `Accepted an invitation to`,
                             };
                             break;
                         case 'PublicEvent':
