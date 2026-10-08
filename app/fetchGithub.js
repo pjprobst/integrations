@@ -1,9 +1,8 @@
 import { Octokit } from "octokit";
-import dotenv from 'dotenv';
+import env from "./env.js";
 import { formatEasternDateTime } from "./formatEasternDateTime.js";
 
-dotenv.config({path: '.env'});
-const pat = process.env.GITHUB_PAT;
+const pat = env.GITHUB_PAT;
 
 const octokit = new Octokit({ auth: pat });
 
@@ -12,9 +11,7 @@ export function fetchGithub(onUpdate) {
 
     let githubActivity = [];
 
-    let checkExpBackoff = 0;
-
-    pollingLoop(10000);
+    pollingLoop(5 * 60 * 1000);
 
     async function pollGithub(){
         const compare = (a, b) => {
@@ -238,23 +235,11 @@ export function fetchGithub(onUpdate) {
     async function pollingLoop(refresh) {
         try {
             await pollGithub();
-            checkExpBackoff = 0;
             setTimeout(() => pollingLoop(refresh), refresh);
         }
         catch(err) {
-            checkExpBackoff += 1;
             console.log(`GITHUB ERROR: ${err}`);
-
-            if (checkExpBackoff >= 5 && checkExpBackoff <= 10) {
-                setTimeout(() => pollingLoop(refresh), (1000 * Math.pow(2, checkExpBackoff-4)));
-            }
-            else if (checkExpBackoff > 10) {
-                console.log(`Exponential backoff has exceeded 10, capping exponential backoff at 64s`);
-                setTimeout(() => pollingLoop(refresh), 64000);
-            }
-            else {
-                setTimeout(() => pollingLoop(refresh), 1000);
-            }
+            setTimeout(() => pollingLoop(refresh), refresh);
         }
     }
 }

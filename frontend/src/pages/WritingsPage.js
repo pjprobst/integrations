@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import API_URL from '../config';
 import useTheme from '../hooks/useTheme';
 
 const navigation = [
@@ -33,13 +34,51 @@ function formatPostedAt(postedAt) {
     return `${date}, ${time} ET`;
 }
 
+function SubstackEmbed({ title, url }) {
+    const iframeRef = useRef(null);
+    const [height, setHeight] = useState(470);
+    const embedUrl = new URL(url);
+    const publicationOrigin = embedUrl.origin;
+
+    embedUrl.pathname = embedUrl.pathname.replace('/p/', '/embed/p/');
+    embedUrl.searchParams.set('origin', window.location.origin);
+    embedUrl.searchParams.set('fullURL', window.location.href);
+
+    useEffect(() => {
+        const updateHeight = (event) => {
+            if (
+                event.origin === publicationOrigin
+                && event.source === iframeRef.current?.contentWindow
+                && event.data.iframeHeight
+            ) {
+                setHeight(event.data.iframeHeight);
+            }
+        };
+
+        window.addEventListener('message', updateHeight);
+        return () => window.removeEventListener('message', updateHeight);
+    }, [publicationOrigin]);
+
+    return (
+        <iframe
+            ref={iframeRef}
+            title={title}
+            src={embedUrl.toString()}
+            height={height}
+            scrolling="no"
+            sandbox="allow-scripts allow-same-origin allow-top-navigation allow-popups"
+            allow="clipboard-read; clipboard-write"
+        />
+    );
+}
+
 function WritingsPage() {
     const [writings, setWritings] = useState([]);
     const [error, setError] = useState('');
     const { darkMode, themeWasToggled, toggleTheme } = useTheme();
     
     useEffect(() => {
-        fetch('http://localhost:8080/writings')
+        fetch(`${API_URL}/writings`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Failed to load writings');
@@ -54,32 +93,19 @@ function WritingsPage() {
             });
     }, []);
 
-    useEffect(() => {
-        if (writings.length === 0) {
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://substack.com/embedjs/embed.js';
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            script.remove();
-        };
-    }, [writings]);
-
     return (
         <div className="site-shell" id="home">
             <nav className="site-nav">
                 <div className="nav-links">
                     {navigation.map(([label, href]) => {
                         const isExternal = href.startsWith('http');
+                        const isCurrent = href === (window.location.pathname.replace(/\/+$/, '') || '/');
 
                         return (
                             <a
                                 href={href}
                                 key={label}
+                                className={isCurrent ? 'current-page' : undefined}
                                 target={isExternal ? '_blank' : undefined}
                                 rel={isExternal ? 'noopener noreferrer' : undefined}
                             >
@@ -103,7 +129,7 @@ function WritingsPage() {
                     <article className="writing-entry" key={writing.url}>
                         <p className="entry-date">{formatPostedAt(writing.postedAt)}</p>
                         <div className="substack-post-embed">
-                            <a data-post-link="" href={writing.url}>{writing.title}</a>
+                            <SubstackEmbed title={writing.title} url={writing.url} />
                         </div>
                     </article>
                 ))}

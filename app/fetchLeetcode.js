@@ -15,9 +15,7 @@ const query = gql`
 export function fetchLeetcode(onUpdate) {
     let leetcodeActivity = [];
 
-    let checkExpBackoff = 0;
-
-    pollingLoop(10000);
+    pollingLoop(15 * 60 * 1000);
 
     async function pollLeetcode() {
         const compare = (a, b) => {
@@ -88,22 +86,10 @@ export function fetchLeetcode(onUpdate) {
         try {
             await pollLeetcode();
             setTimeout(() => pollingLoop(refresh), refresh);
-            checkExpBackoff = 0;
         }
         catch(err) {
-            checkExpBackoff += 1;
             console.log(`LEETCODE ERROR: ${err}`);
-
-            if (checkExpBackoff >= 5 && checkExpBackoff <= 10) {
-                setTimeout(() => pollingLoop(refresh), (refresh/10 * Math.pow(2, checkExpBackoff-4)));
-            }
-            else if (checkExpBackoff > 10) {
-                console.log(`Exponential backoff has exceeded 10, capping exponential backoff at ${(6.4 * refresh) / 1000}s`);
-                setTimeout(() => pollingLoop(refresh), 6.4*refresh);
-            }
-            else {
-                setTimeout(() => pollingLoop(refresh), refresh/10);
-            }
+            setTimeout(() => pollingLoop(refresh), refresh);
         }
     }
 }

@@ -1,11 +1,9 @@
 import { request, gql } from "graphql-request";
-import dotenv from "dotenv";
+import database from "./database.js";
+import env from "./env.js";
 import { formatEasternDateTime } from "./formatEasternDateTime.js";
-import { DatabaseSync } from "node:sqlite";
-import { fileURLToPath } from "node:url";
 
-dotenv.config({path: '.env'});
-const apiKey = process.env.HARDCOVER_API_KEY;
+const apiKey = env.HARDCOVER_API_KEY;
 
 const query = gql`
     query Me {
@@ -42,13 +40,6 @@ const query = gql`
         }
     }
 `
-
-const databasePath = fileURLToPath(
-    new URL('./data/my_database.db',
-    import.meta.url)
-);
-
-const database = new DatabaseSync(databasePath);
 
 const inDatabase = database.prepare(`
     SELECT 1
@@ -95,9 +86,7 @@ const updateBook = database.prepare(`
 export function fetchHardcover(onUpdate) {
     let hardcoverActivity = [];
 
-    let checkExpBackoff = 0;
-
-    pollingLoop(10000);
+    pollingLoop(5 * 60 * 1000);
 
     async function pollHardcover() {
         const compare = (a, b) => {
@@ -303,22 +292,10 @@ export function fetchHardcover(onUpdate) {
         try {
             await pollHardcover();
             setTimeout(() => pollingLoop(refresh), refresh);
-            checkExpBackoff = 0;
         }
         catch(err) {
-            checkExpBackoff += 1;
             console.log(`HARDCOVER ERROR: ${err}`);
-
-            if (checkExpBackoff >= 5 && checkExpBackoff <= 10) {
-                setTimeout(() => pollingLoop(refresh), (refresh/10 * Math.pow(2, checkExpBackoff-4)));
-            }
-            else if (checkExpBackoff > 10) {
-                console.log(`Exponential backoff has exceeded 10, capping exponential backoff at ${(6.4 * refresh) / 1000}s`);
-                setTimeout(() => pollingLoop(refresh), 6.4*refresh);
-            }
-            else {
-                setTimeout(() => pollingLoop(refresh), refresh/10);
-            }
+            setTimeout(() => pollingLoop(refresh), refresh);
         }
     }
 }

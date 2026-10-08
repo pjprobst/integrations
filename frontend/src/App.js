@@ -1,18 +1,16 @@
 import './App.css';
 import HomePage from './pages/HomePage';
+import ProjectsPage from './pages/ProjectsPage';
 import ReadingsPage from './pages/ReadingsPage';
 import VideosPage from './pages/VideosPage';
 import WritingsPage from './pages/WritingsPage';
 
-const wipPaths = new Set(['/projects']);
-
 function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
 
-  if (wipPaths.has(path)) {
-    return <div>WIP</div>;
+  if (path === '/projects') {
+    return <ProjectsPage />;
   }
-
   else if (path === '/videos'){
     return <VideosPage />;
   }

@@ -3,13 +3,25 @@ import { fetchHardcover } from "./fetchHardcover.js";
 import { fetchSubstack } from "./fetchSubstack.js";
 import { fetchLeetcode } from "./fetchLeetcode.js";
 import { fetchYoutube } from "./fetchYoutube.js";
+import database from "./database.js";
+import env from "./env.js";
 import express from "express";
 import cors from "cors";
-import { DatabaseSync } from "node:sqlite";
-import { fileURLToPath } from "node:url";
+
+const requiredVariables = [
+    'GITHUB_PAT',
+    'HARDCOVER_API_KEY',
+    'YOUTUBE_API_KEY'
+];
+
+for (const variable of requiredVariables) {
+    if (!env[variable]) {
+        throw new Error(`Missing environment variable: ${variable}`);
+    }
+}
 
 const app = express();
-const port = 8080;
+const port = env.PORT || 8080;
 
 let activities = [];
 
@@ -27,16 +39,11 @@ const compare = (a, b) => {
     }
 }
 
+const allowedOrigins = (env.FRONTEND_ORIGINS || 'http://localhost:3000').split(',').map((origin) => origin.trim()).filter(Boolean);
+
 app.use(cors({
-    origin: 'http://localhost:3000'
+    origin: allowedOrigins
 }));
-
-const databasePath = fileURLToPath(
-    new URL('./data/my_database.db',
-    import.meta.url)
-);
-
-const database = new DatabaseSync(databasePath);
 
 const getVideos = database.prepare(`
     SELECT * FROM youtube
@@ -128,11 +135,20 @@ app.get('/activities', (req, res) => {
     res.write(`event: activities\n`);
     res.write(`data: ${JSON.stringify(activities)}\n\n`);
 
+    const heartbeat = setInterval(() => {
+        res.write(': heartbeat\n\n');
+    }, 25000);
+
     req.on('close', () => {
+        clearInterval(heartbeat);
         clients.delete(res);
     });
 });
 
-app.listen(port, () => {
-    console.log(`listening on http://localhost:${port}`);
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`listening on port ${port}`);
 });

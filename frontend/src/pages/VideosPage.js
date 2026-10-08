@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import API_URL from '../config';
 import useTheme from '../hooks/useTheme';
 
 const navigation = [
@@ -39,7 +40,7 @@ function VideosPage() {
     const { darkMode, themeWasToggled, toggleTheme } = useTheme();
     
     useEffect(() => {
-      fetch('http://localhost:8080/videos')
+      fetch(`${API_URL}/videos`)
           .then((response) => {
               if (!response.ok) {
                   throw new Error('Failed to load videos');
@@ -60,11 +61,13 @@ function VideosPage() {
                 <div className="nav-links">
                     {navigation.map(([label, href]) => {
                         const isExternal = href.startsWith('http');
+                        const isCurrent = href === (window.location.pathname.replace(/\/+$/, '') || '/');
 
                         return (
                             <a
                                 href={href}
                                 key={label}
+                                className={isCurrent ? 'current-page' : undefined}
                                 target={isExternal ? '_blank' : undefined}
                                 rel={isExternal ? 'noopener noreferrer' : undefined}
                             >

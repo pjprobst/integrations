@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import API_URL from '../config';
 import useTheme from '../hooks/useTheme';
 
 const navigation = [
@@ -92,6 +93,7 @@ function getActivityDescription(activity) {
 function HomePage() {
   const [data, setData] = useState([]);
   const [activityError, setActivityError] = useState('');
+  const hasReceivedActivities = useRef(false);
   const { darkMode, themeWasToggled, toggleTheme } = useTheme();
   const [emailCopied, setEmailCopied] = useState(false);
   const [emailWasCopied, setEmailWasCopied] = useState(
@@ -99,13 +101,16 @@ function HomePage() {
   );
 
   useEffect(() => {
-    const dataSource = new EventSource('http://localhost:8080/activities');
+    const dataSource = new EventSource(`${API_URL}/activities`);
     dataSource.addEventListener('activities', (event) => {
+      hasReceivedActivities.current = true;
       setData(JSON.parse(event.data));
       setActivityError('');
     });
     dataSource.addEventListener('error', () => {
-      setActivityError('Unable to load activities.');
+      if (!hasReceivedActivities.current) {
+        setActivityError('Unable to load activities.');
+      }
     });
 
     return () => {
@@ -138,11 +143,13 @@ function HomePage() {
         <div className="nav-links">
           {navigation.map(([label, href]) => {
             const isExternal = href.startsWith('http');
+            const isCurrent = href === (window.location.pathname.replace(/\/+$/, '') || '/');
 
             return (
               <a
                 href={href}
                 key={label}
+                className={isCurrent ? 'current-page' : undefined}
                 target={isExternal ? '_blank' : undefined}
                 rel={isExternal ? 'noopener noreferrer' : undefined}
               >
@@ -170,7 +177,7 @@ function HomePage() {
               <p className="role">Software Engineering Intern at Character.ai</p>
               <p>B.S. in Computer Science - Minor in Philosophy</p>
               <p>University of Pittsburgh - Class of 2028</p>
-              <p>Previously at Iris (YC F25)</p>
+              <p>Previously at Iris (YC F25), DME, and Ruddervirt</p>
 
               <div className="social-links">
                 <a href="/preston_j_probst_resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
@@ -185,24 +192,24 @@ function HomePage() {
 
           <section className="bio-sections">
             <p>
-              <span className="section-lead">About:</span> I started programming in 2020, learning Python from YouTube during the pandemic. Since then, I have continued learning, teaching, and building. I do not have a fixed end goal. I am more interested in improving each day and seeing where that leads.
+              <span className="section-lead">About:</span> I started programming in 2020, learning Python from YouTube during the pandemic. Since then, I have continued learning, teaching, and building. I make an effort to improve each day and look forward to seeing where that leads me.
             </p>
             <p>
-              <span className="section-lead">Currently:</span> I work as a software engineering intern on Character.ai's monetization team. At Pitt, I study computer science and philosophy and serve as the events coordinator for PittCSC and the AWS Cloud Club. In my free time, I read, write, play strategy games, bike, and learn new programming concepts.
+              <span className="section-lead">Currently:</span> I work as a software engineering intern on <a href="https://character.ai/" target="_blank" rel="noopener noreferrer">Character.ai</a>'s monetization team. At Pitt, I study computer science and philosophy and serve as the events coordinator for <a href="https://pittcsc.org/" target="_blank" rel="noopener noreferrer">PittCSC</a> and Pitt's <a href="https://www.meetup.com/aws-cloud-club-at-university-of-pittsburgh/" target="_blank" rel="noopener noreferrer">AWS Student Builder Group</a>. In my free time, I read, write, play strategy games, bike, and learn new programming concepts.
             </p>
             <p className="previous-section">
               <span className="section-lead">Previously:</span>
               <span className="previous-entry">
-                <span className="previous-role">Iris (YC F25) - Software Engineering Intern</span>
+                <span className="previous-role"><a href="https://textiris.com/" target="_blank" rel="noopener noreferrer">Iris (YC F25)</a> - Software Engineering Intern</span>
                 <span className="previous-description">Built an AI assistant mobile app, tool-calling agent evals, and custom MCP integrations.</span>
               </span>
               <span className="previous-entry">
-                <span className="previous-role">DME Elevators & Lifts - Software Engineering Intern</span>
-                <span className="previous-description">Cold-emailed a local business to offer my web development skills.</span>
+                <span className="previous-role"><a href="https://www.dmelift.com/" target="_blank" rel="noopener noreferrer">DME Elevators & Lifts</a> - Software Engineering Intern</span>
+                <span className="previous-description">Cold-emailed a local business and was hired to refactor their website.</span>
               </span>
               <span className="previous-entry">
-                <span className="previous-role">Ruddervirt - Software Engineering Intern</span>
-                <span className="previous-description">Developed virtual machine software used in SkillsUSA cybersecurity competitions.</span>
+                <span className="previous-role"><a href="https://ruddervirt.com/" target="_blank" rel="noopener noreferrer">Ruddervirt</a> - Software Engineering Intern</span>
+                <span className="previous-description">Developed virtual machine software used in classrooms and cybersecurity competitions.</span>
               </span>
             </p>
           </section>

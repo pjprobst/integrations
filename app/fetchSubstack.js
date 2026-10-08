@@ -1,13 +1,5 @@
+import database from "./database.js";
 import { formatEasternDateTime } from "./formatEasternDateTime.js";
-import { DatabaseSync } from "node:sqlite";
-import { fileURLToPath } from "node:url";
-
-const databasePath = fileURLToPath(
-    new URL('./data/my_database.db',
-    import.meta.url)
-);
-
-const database = new DatabaseSync(databasePath);
 
 const inDatabase = database.prepare(`
     SELECT 1
@@ -29,9 +21,7 @@ const insertPost = database.prepare(`
 export function fetchSubstack(onUpdate) {
     let substackActivity = [];
 
-    let checkExpBackoff = 0;
-
-    pollingLoop(10000);
+    pollingLoop(30 * 60 * 1000);
 
     async function pollSubstack() {
         const aWeekAgo = new Date(Date.now()-604800000);
@@ -104,23 +94,11 @@ export function fetchSubstack(onUpdate) {
     async function pollingLoop(refresh) {
         try {
             await pollSubstack();
-            checkExpBackoff = 0;
             setTimeout(() => pollingLoop(refresh), refresh);
         }
         catch(err) {
-            checkExpBackoff += 1;
             console.log(`SUBSTACK ERROR: ${err}`);
-
-            if (checkExpBackoff >= 5 && checkExpBackoff <= 10) {
-                setTimeout(() => pollingLoop(refresh), (refresh/10 * Math.pow(2, checkExpBackoff-4)));
-            }
-            else if (checkExpBackoff > 10) {
-                console.log(`Exponential backoff has exceeded 10, capping exponential backoff at ${(6.4 * refresh) / 1000}s`);
-                setTimeout(() => pollingLoop(refresh), 6.4*refresh);
-            }
-            else {
-                setTimeout(() => pollingLoop(refresh), refresh/10);
-            }
+            setTimeout(() => pollingLoop(refresh), refresh);
         }
     }
 }

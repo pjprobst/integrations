@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import API_URL from '../config';
 import useTheme from '../hooks/useTheme';
 
 const navigation = [
@@ -7,7 +8,7 @@ const navigation = [
     ['Videos', '/videos'],
     ['Writings', '/writings'],
     ['Readings', '/readings'],
-    ['Book Time With Me', 'https://calendar.app.google/UB9xZXa7gtQ32pz27'],
+    ['Book Time With Me', 'https://cal.com/prestonpro/chat'],
 ];
 
 const statusOrder = [
@@ -18,6 +19,17 @@ const statusOrder = [
     'Did Not Finish',
 ];
 
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+});
+
+function formatDate(date) {
+    return dateFormatter.format(new Date(date)).replaceAll('/', '.');
+}
+
 function ReadingsPage() {
     const [books, setBooks] = useState([]);
     const [error, setError] = useState('');
@@ -25,7 +37,7 @@ function ReadingsPage() {
     const { darkMode, themeWasToggled, toggleTheme } = useTheme();
 
     useEffect(() => {
-        fetch('http://localhost:8080/readings')
+        fetch(`${API_URL}/readings`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Failed to load readings');
@@ -63,11 +75,13 @@ function ReadingsPage() {
                 <div className="nav-links">
                     {navigation.map(([label, href]) => {
                         const isExternal = href.startsWith('http');
+                        const isCurrent = href === (window.location.pathname.replace(/\/+$/, '') || '/');
 
                         return (
                             <a
                                 href={href}
                                 key={label}
+                                className={isCurrent ? 'current-page' : undefined}
                                 target={isExternal ? '_blank' : undefined}
                                 rel={isExternal ? 'noopener noreferrer' : undefined}
                             >
@@ -113,12 +127,12 @@ function ReadingsPage() {
                                             </a>
                                         </h3>
                                         <p>{book.author}</p>
-                                        {book.startedAt && <p>Started {book.startedAt}</p>}
+                                        {book.startedAt && <p>Started {formatDate(book.startedAt)}</p>}
                                         {book.pages && <p>{book.pages} pages</p>}
                                         {book.progressPages !== null && book.progressPages !== undefined && (
                                             <p>{book.progressPages} pages read</p>
                                         )}
-                                        {book.finishedAt && <p>Finished {book.finishedAt}</p>}
+                                        {book.finishedAt && <p>Finished {formatDate(book.finishedAt)}</p>}
                                         {book.progressPages !== null && book.progressPages !== undefined && book.pages > 0 && (
                                             <div className="book-progress">
                                                 <span
