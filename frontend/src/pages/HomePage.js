@@ -192,7 +192,7 @@ function HomePage() {
 
           <section className="bio-sections">
             <p>
-              <span className="section-lead">About:</span> I started programming in 2020, learning Python from YouTube during the pandemic. Since then, I have continued learning, teaching, and building. I make an effort to improve each day and look forward to seeing where that takes me.
+              <span className="section-lead">About:</span> I started programming in 2020, learning Python from YouTube during the pandemic. Since then, I haven't stopped. I make an effort to improve each day and look forward to seeing where that takes me.
             </p>
             <p>
               <span className="section-lead">Currently:</span> I work as a software engineering intern on <a href="https://character.ai/" target="_blank" rel="noopener noreferrer">Character.ai</a>'s monetization team. At Pitt, I study computer science and philosophy and serve as the events coordinator for <a href="https://pittcsc.org/" target="_blank" rel="noopener noreferrer">PittCSC</a> and Pitt's <a href="https://www.meetup.com/aws-cloud-club-at-university-of-pittsburgh/" target="_blank" rel="noopener noreferrer">AWS Student Builder Group</a>. In my free time, I read, write, play strategy games, bike, and learn new programming concepts.
