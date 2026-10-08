@@ -54,8 +54,8 @@ function getGithubDescription(activity) {
     return `Made ${repository} public`;
   }
 
-  if (activity.event === 'Accepted an invite to') {
-    return `${action} ${repository}`;
+  if (activity.event === 'Accepted an invite') {
+    return `${action} to ${repository}`;
   }
 
   if (activity.event === 'Created a new repo') {
