@@ -27,7 +27,7 @@ const query = gql`
                         url
                     }
                     title
-                    contributions(where: {contributor_role: {important: { _eq: 1 } }}) {
+                    contributions(where: {contributor_role: {primary: { _eq: true } }}) {
                         author {
                             name
                         }
