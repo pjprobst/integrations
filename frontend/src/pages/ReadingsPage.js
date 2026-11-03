@@ -128,12 +128,12 @@ function ReadingsPage() {
                                         </h3>
                                         <p>{book.author}</p>
                                         {book.startedAt && <p>Started {formatDate(book.startedAt)}</p>}
+                                        {book.finishedAt && <p>Finished {formatDate(book.finishedAt)}</p>}
                                         {book.pages && <p>{book.pages} pages</p>}
-                                        {book.progressPages !== null && book.progressPages !== undefined && (
+                                        {book.finishedAt == null && book.progressPages !== null && book.progressPages !== undefined && (
                                             <p>{book.progressPages} pages read</p>
                                         )}
-                                        {book.finishedAt && <p>Finished {formatDate(book.finishedAt)}</p>}
-                                        {book.progressPages !== null && book.progressPages !== undefined && book.pages > 0 && (
+                                        {book.finishedAt == null && book.progressPages !== null && book.progressPages !== undefined && book.pages > 0 && (
                                             <div className="book-progress">
                                                 <span
                                                     style={{
