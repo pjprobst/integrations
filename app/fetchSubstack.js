@@ -58,7 +58,7 @@ export function fetchSubstack(onUpdate) {
 
         const body = await res.json();
 
-        for (const entry of body) {
+        for (const entry of body.posts) {
             const url = entry.canonical_url;
             const title = entry.title;
             const datetime = new Date(entry.post_date);
