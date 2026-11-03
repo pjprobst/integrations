@@ -67,7 +67,7 @@ function ProjectsPage() {
             </nav>
 
             <main className="projects-page">
-                <h1>My Projects</h1>
+                <h1>Projects</h1>
 
                 {projects.length === 0 ? (
                     <p className="projects-message">No projects to display.</p>

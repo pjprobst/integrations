@@ -100,7 +100,7 @@ function ReadingsPage() {
             </nav>
 
             <main className="readings-page">
-                <h1>My Readings since 10.2026</h1>
+                <h1>Readings since 10.2026</h1>
 
                 {loading && <p className="readings-message">Loading readings...</p>}
                 {!loading && error && <p className="readings-message">{error}</p>}

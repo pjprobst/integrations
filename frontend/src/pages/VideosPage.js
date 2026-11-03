@@ -85,7 +85,7 @@ function VideosPage() {
                 </div>
             </nav>
             <main className="videos-page">
-                <h1>My Videos</h1>
+                <h1>Videos</h1>
                 {error && <p className="page-message">{error}</p>}
                 {videos.map((video) => (
                     <article className="video-entry" key={video.id}>
