@@ -123,7 +123,7 @@ function WritingsPage() {
                 </div>
             </nav>
             <main className="writings-page">
-                <h1>Writings</h1>
+                <h1>My Writings</h1>
                 {error && <p className="page-message">{error}</p>}
                 {writings.map((writing) => (
                     <article className="writing-entry" key={writing.url}>
