@@ -1,11 +1,13 @@
 import dentalConnectImage from './dentalconnect.png';
 import offlineIndiaImage from './offlineindia.png';
+import stratGameImage from './stratgame.png';
 
 
 const projects = [
     {
         title: 'Abstract Strategy Game and Engine',
         status: 'In Progress',
+        image: stratGameImage,
         description: 'Tooling for making strategy games that I will use to develop my own. Tests game logic against Minimax algorithm for now.',
         technologies: ['Just Python for now...'],
         links: [
